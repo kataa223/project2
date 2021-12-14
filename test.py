@@ -46,24 +46,36 @@ def main():
     # 検索ボタンクリック
     driver.find_element(by=By.CLASS_NAME, value="topSearch__button").click()
     
-    name_elms = driver.find_elements(by=By.CLASS_NAME, value="cassetteRecruit__name")
-    copy_elms = driver.find_elements(by=By.CLASS_NAME, value="cassetteRecruit__copy")
+    # name_elms = driver.find_elements(by=By.CLASS_NAME, value="cassetteRecruit__name")
+    # copy_elms = driver.find_elements(by=By.CLASS_NAME, value="cassetteRecruit__copy")
     
+    while True:
+        page_text = driver.find_element(by=By.CLASS_NAME, value="pager__text") 
+        print(page_text.text)
+        
+        next_page = driver.find_elements_by_css_selector(".iconFont--arrowLeft")
+        if len(next_page) == 0:
+            break
+        else:
+            driver.execute_script('document.querySelector(".iconFont--arrowLeft").click()')
+            # driver.find_element(by=By.CLASS_NAME, value="iconFont--arrowLeft").click()
+         
+    print("おわり！！")     
     
-    # 空のDataFrame作成
-    df = pd.DataFrame()
-    df2 = pd.DataFrame()
+    # # 空のDataFrame作成
+    # df = pd.DataFrame()
+    # df2 = pd.DataFrame()
     
-    for i, name_elm in enumerate(name_elms):
-        print("---------------------")
-        print(f'会社名；{name_elm.text}')
-        print(f'タイトル；{copy_elms[i].text}')
-        # DataFrameに対して辞書形式でデータを追加する
-        df = df.append(
-            {"会社名": name_elm.text, 
-             "タイトル": copy_elms[i].text,
-             "項目C": ""}, 
-            ignore_index=True)
+    # for i, name_elm in enumerate(name_elms):
+    #     print("---------------------")
+    #     print(f'会社名；{name_elm.text}')
+    #     print(f'タイトル；{copy_elms[i].text}')
+    #     # DataFrameに対して辞書形式でデータを追加する
+    #     df = df.append(
+    #         {"会社名": name_elm.text, 
+    #          "タイトル": copy_elms[i].text,
+    #          "項目C": ""}, 
+    #         ignore_index=True)
     
     
     

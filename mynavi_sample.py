@@ -6,9 +6,14 @@ from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import pandas as pd
+import datetime
  
 # Selenium4対応済
 
+# ログ出力機能
+def output_log(text_log):
+    with open("debug.log", "a", encoding="utf-8") as f:
+        f.write(text_log)
 
 def set_driver(hidden_chrome: bool=False):
     '''
@@ -69,41 +74,53 @@ def main():
     driver.find_element(by=By.CLASS_NAME, value="topSearch__text").send_keys(search_keyword)
     # 検索ボタンクリック
     driver.find_element(by=By.CLASS_NAME, value="topSearch__button").click()
-
-
-    '''
-    find_elements(※複数形)を使用すると複数のデータがListで取得できる
-    一覧から同一条件で複数のデータを取得する場合は、こちらを使用する
-    '''
-    name_elms = driver.find_elements(by=By.CLASS_NAME, value="cassetteRecruit__name")
-    copy_elms = driver.find_elements(by=By.CLASS_NAME, value="cassetteRecruit__copy")
-    
     
     # 空のDataFrame作成
     df = pd.DataFrame()
+    num = 0
+    log_text = ""
 
-    # 1ページ分繰り返し
-    print(len(name_elms))
-    '''
-    name_elmsには１ページ分の情報が格納されているのでforでループさせて１つづつ取り出して、Dataframeに格納する
-    '''
-    # 会社名とタイトルを別々に取得してきて使いました。
-    # それぞれ同じ求人の順序で取れている前提で設定しているので、
-    # 会社とタイトルの組み合わせがずれる可能性がないか心配です。
-    for i, name_elm in enumerate(name_elms):
-        print("---------------------")
-        print(f'会社名；{name_elm.text}')
-        print(f'タイトル；{copy_elms[i].text}')
-        # DataFrameに対して辞書形式でデータを追加する
-        df = df.append(
-            {"会社名": name_elm.text, 
-             "タイトル": copy_elms[i].text,
-             "項目C": ""}, 
-            ignore_index=True)
-        
-        
+    # 最後のページまで繰り返し
+    while True:
+        try:
+            page_text = driver.find_element(by=By.CLASS_NAME, value="pager__text") 
+            print(page_text.text)
+            
+            # 会社名とタイトルを別々に取得してきて使いました。
+            # それぞれ同じ求人の順序で取れている前提で設定しているので、
+            # 会社とタイトルの組み合わせがずれる可能性がないか心配です。
+            name_elms = driver.find_elements(by=By.CLASS_NAME, value="cassetteRecruit__name")
+            copy_elms = driver.find_elements(by=By.CLASS_NAME, value="cassetteRecruit__copy")
+            
+            for i, name_elm in enumerate(name_elms):
+                num += 1
+                # DataFrameに対して辞書形式でデータを追加する
+                df = df.append(
+                    {"会社名": name_elm.text, 
+                    "タイトル": copy_elms[i].text}, 
+                    ignore_index=True)
+                
+                # ログ出力
+                output_log(f'[{datetime.datetime.now()}]:{num}番目の求人を正常に取得しました。\n')
+                
+            # 次へボタンの要素が取得できない場合は終了する
+            # 取得できた場合は次ページへ遷移する
+            next_page = driver.find_elements_by_css_selector(".iconFont--arrowLeft")
+            if len(next_page) == 0:
+                break
+            else:
+                driver.execute_script('document.querySelector(".iconFont--arrowLeft").click()')
+            
+        except Exception as e:
+            # エラー時はログを出力する
+            output_log(f'[{datetime.datetime.now()}]；{num}番目の求人でエラーが発生しました。\n')
+            output_log(f'{e}\n')
 
-
+    # DataFrameをcsv出力
+    df.to_csv("test.csv")
+    
+    
+    
 # 直接起動された場合はmain()を起動(モジュールとして呼び出された場合は起動しないようにするため)
 if __name__ == "__main__":
     main()
