@@ -51,7 +51,8 @@ def main():
     driver = set_driver()
     
     # Webサイトを開く
-    driver.get("https://tenshoku.mynavi.jp/")
+    # driver.get("https://tenshoku.mynavi.jp/")
+    driver.get(f'https://tenshoku.mynavi.jp/list/kw{search_keyword}/?jobsearchType=14&searchType=18')
     time.sleep(5)
     
     '''
@@ -71,9 +72,9 @@ def main():
     特定した要素に対して、send_keysで入力、clickでクリック、textでデータ取得が可能
     '''
     # 検索窓に入力
-    driver.find_element(by=By.CLASS_NAME, value="topSearch__text").send_keys(search_keyword)
+    # driver.find_element(by=By.CLASS_NAME, value="topSearch__text").send_keys(search_keyword)
     # 検索ボタンクリック
-    driver.find_element(by=By.CLASS_NAME, value="topSearch__button").click()
+    # driver.find_element(by=By.CLASS_NAME, value="topSearch__button").click()
     
     # 空のDataFrame作成
     df = pd.DataFrame()
@@ -88,7 +89,7 @@ def main():
             
             # 会社名とタイトルを別々に取得してきて使いました。
             # それぞれ同じ求人の順序で取れている前提で設定しているので、
-            # 会社とタイトルの組み合わせがずれる可能性がないか心配です。
+            # 会社とタイトルの組み合わせがずれる可能性がないか不安があります。
             name_elms = driver.find_elements(by=By.CLASS_NAME, value="cassetteRecruit__name")
             copy_elms = driver.find_elements(by=By.CLASS_NAME, value="cassetteRecruit__copy")
             
