@@ -87,18 +87,16 @@ def main():
             page_text = driver.find_element(by=By.CLASS_NAME, value="pager__text") 
             print(page_text.text)
             
-            # 会社名とタイトルを別々に取得してきて使いました。
-            # それぞれ同じ求人の順序で取れている前提で設定しているので、
-            # 会社とタイトルの組み合わせがずれる可能性がないか不安があります。
+            # 会社名・タイトル取得
             name_elms = driver.find_elements(by=By.CLASS_NAME, value="cassetteRecruit__name")
             copy_elms = driver.find_elements(by=By.CLASS_NAME, value="cassetteRecruit__copy")
             
-            for i, name_elm in enumerate(name_elms):
+            for name_elm, copy_elm in zip(name_elms, copy_elms):
                 num += 1
                 # DataFrameに対して辞書形式でデータを追加する
                 df = df.append(
                     {"会社名": name_elm.text, 
-                    "タイトル": copy_elms[i].text}, 
+                    "タイトル": copy_elm.text}, 
                     ignore_index=True)
                 
                 # ログ出力
@@ -118,7 +116,7 @@ def main():
             output_log(f'{e}\n')
 
     # DataFrameをcsv出力
-    df.to_csv("test.csv")
+    df.to_csv("test.csv", encoding="utf-8_sig")
     
     
     
